@@ -216,3 +216,21 @@
             </div>
         </div>
     </div>
+    
+    
+    
+protected void btnDownload_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string filePath = Server.MapPath("~/File/CETTemplate.xlsx");
+                Response.ContentType = ContentType;
+                Response.AppendHeader("Content-Disposition", "attachment; filename=" + Path.GetFileName(filePath));
+                Response.WriteFile(filePath);
+                Response.End();
+            }
+            catch (Exception ex)
+            {
+                Utility.CreateErrorLog(ex.Message, "Uploader.aspx", "btnDownload_Click()", "", HttpContext.Current.Session["Domain"].ToString(), HttpContext.Current.Session["NTID"].ToString(), ex);
+            }
+        }
