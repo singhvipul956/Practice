@@ -1,0 +1,177 @@
+<script type="text/javascript">
+
+        var excelRows;
+
+        $(function () {
+            //debugger;
+            oFileIn = $("[id*=fuBulkUploader]")[0];
+            if (oFileIn.addEventListener) {
+                oFileIn.addEventListener('change', assignExcel, false);
+            }
+        });
+
+        function assignExcel(oEvent) {
+            debugger;
+            //if ((/^CETTemplate/g).test($("[id*=fuBulkUploader]").val().replace(/.*[\/\\]/, ''))) {
+            var xlsxflag = false;
+            if ($("[id*=fuBulkUploader]").val().toLowerCase().indexOf(".xlsx") > 0) {
+                xlsxflag = true;
+            }
+            if (xlsxflag) {
+                var oFile = oEvent.target.files[0];
+                var sFilename = oFile.name;
+                var reader = new FileReader();
+                if (reader.readAsBinaryString) {
+                    reader.onload = function (e) {
+                        //debugger;
+                        var data = e.target.result;
+                        var workbook = XLSX.read(data, {
+                            type: 'binary', cellDates: true, dateNF: 'mm/dd/yyyy;@'
+                        });
+                        var firstSheet = workbook.SheetNames[0];
+                        //excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+                        excelRows = createTable(XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { header: 0, defval: "" }), 'Agent', 'divTable');
+                        $('#noteDiv').css('display', 'block');
+                    };
+                    reader.readAsBinaryString(oFile);
+                }
+                else {
+                    reader.onload = function (e) {
+                        var data = "";
+                        var bytes = new Uint8Array(e.target.result);
+                        for (var i = 0; i < bytes.byteLength; i++) {
+                            data += String.fromCharCode(bytes[i]);
+                        }
+                        var workbook = XLSX.read(data, {
+                            type: 'binary', cellDates: true, dateNF: 'mm/dd/yyyy;@'
+                        });
+                        var firstSheet = workbook.SheetNames[0];
+                        //excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+                        excelRows = createTable(XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { header: 0, defval: "" }), 'Agent', 'divTable');
+                        $('#noteDiv').css('display', 'block');
+                    }
+                    reader.readAsArrayBuffer(oFile);
+                }
+                return true;
+            }
+            else {
+                $("[id*=fuBulkUploader]").val('');
+                alert("Please upload excel file!");
+                return false;
+            }
+            //}
+            //else {
+            //    $("[id*=fuBulkUploader]").val('');
+            //    alert("Please upload excel file for Hiring Phase!");
+            //    return false;
+            //}
+        }
+    </script>
+    <script type="text/javascript" id="forDisplayingExcel">
+        function createTable(excelRows, type, id) {
+            debugger;
+            var returnVal = [];
+            var json = excelRows;
+            //$('#totalRecords').html('Total Records: ' + excelRows.length);
+            var html = '';
+            var invalid = '';
+            html = html + '<table class="table table-bordered table-hover table-sm p-0 m-0">';
+            html = html + '<thead class="thead-dark">'
+            html = html + '<tr>'
+            html = html + '<th>Sr No.</th>'
+            var k = 0;
+            for (var key in json[0]) {
+                html = html + '<th>' + key + '</th>'
+                k = k + 1;
+            }
+            html = html + '</tr>'
+            html = html + '</thead>'
+            html = html + '<tbody>'
+            for (var i = 0; i < json.length; i++) {
+                html = html + '<tr>'
+                var j = 0;
+                html = html + '<td>' + (i + 1) + '</td>'
+                for (var key in json[i]) {
+                    var className = ''
+                    if (isRequired(json[i][key].toString())) {
+                    }
+                    else {
+                        className = 'class="table-danger"';
+                    }
+
+                    if (className.trim() != "") {
+                        var invalidArr = invalid.split(',');
+                        var isContain = false;
+                        for (var k = 0; k < invalidArr.length; k++) {
+                            if (parseFloat(invalidArr[k]) == i) {
+                                isContain = true;
+                            }
+                        }
+                        invalid = invalid + (isContain ? '' : i + ',');
+                        debugger;
+                        html = html.replace('<td>' + (i + 1) + '</td>', '<td><span style="color: deeppink; text-decoration: underline;">' + (i + 1) + '</span></td>');
+                    }
+
+                    html = html + '<td ' + (className.trim() == '' ? '' : className) + ' style="color: black;">' + json[i][key] + '</td>'
+
+                    j = j + 1;
+                }
+                html = html + '</tr>'
+            }
+            html = html + '</tbody>'
+            html = html + '</table>';
+            $('#' + id).html(html);
+            invalid.split(',').forEach(function (item, index) {
+                if (item.trim() != "") {
+                    delete json[parseFloat(item)];
+                }
+            });
+
+            for (var i = 0; i < json.length; i++) {
+                if (json[i] != undefined) {
+                    returnVal.push(json[i]);
+                }
+            }
+            console.log(returnVal);
+            return returnVal;
+        }
+
+        function isDate(dateField) {
+            return (dateField.indexOf('NaN') != -1 ? false : true);
+        }
+
+        function isNumber(numberField) {
+            var reg = /^\d+$/;
+            return reg.test(numberField);
+        }
+
+        function isName(nameField) {
+            var nameArray = nameField.split('');
+            var reg = /[^0-9]/g;
+            var returnVal = true;
+            for (var i = 0; i < nameArray.length; i++) {
+                if (!reg.test(nameField)) {
+                    returnVal = false;
+                    break;
+                }
+            }
+            return returnVal;
+        }
+
+        function isRequired(valField) {
+            if (valField.trim() != "" && valField != undefined && valField != null) {
+                return true;
+            }
+            return false;
+        }
+
+        function convertDate(inputFormat) {
+            debugger;
+            function pad(s) { return (s < 10) ? '0' + s : s; }
+            if (inputFormat.length == 10) {
+                var d = new Date(inputFormat);
+                return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join('/')
+            }
+            return "NaN/NaN/NaN";
+        }
+    </script>
