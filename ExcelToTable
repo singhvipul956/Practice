@@ -175,3 +175,44 @@
             return "NaN/NaN/NaN";
         }
     </script>
+    
+<button type="button" class="btn btn-md btn-success" style="width: 150px; margin-top: -20px; margin-left: 80%; background-color: #1e2b2447; text-transform: capitalize;" data-toggle="modal" data-target="#myModal">Bulk Uploader</button>
+
+ <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <%--<div class="modal-content" style="margin-top: 36%; margin-left: -35%; width: 580px; height: 300px;">--%>
+            <div class="modal-content" style="margin-left: -45%; width: 200%; max-height: 575px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;</button>
+                    <h4 class="modal-title">
+                        <asp:Label ID="Label8" runat="server" class="form-label" Style="font-size: 1em; color: orange;"></asp:Label></h4>
+                    <%--badge badge-warning--%>
+                </div>
+                <%--<div class="modal-body pt-0" style="line-height: 1.0;">--%>
+                <div class="modal-body pt-0 pb-0" style="line-height: 1.0;">
+                    <br />
+                    <br />
+                    <div class="row">
+                        <div class="form-group col-md-4" id="Div5">
+                            <asp:Label ID="Label16" runat="server" Text="File Upload :" class="form-label"></asp:Label>
+                            <input type="file" id="fuBulkUploader" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <asp:LinkButton ID="btnDownload" OnClick="btnDownload_Click" CssClass="btn btn-md btn-success" runat="server" Style="width: 120px; height: 30px; margin-top: 9px; background-color: #1e2b2447; color: green; text-transform: capitalize;">Template <i class="fa fa-download"></i></asp:LinkButton>
+                            <div id="noteDiv" style="float: right; margin-top: 9px; display: none;">
+                                <span class="pl-2">Note: Invalid input</span><span class="badge pt-1 pb-1 pl-2 pr-2 ml-2" style="background-color: rgba(255,0,0,0.7); border-radius: 0px;">&nbsp;</span>
+                                <b><span class="pl-2" id="totalRecords"></span></b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divTable" style="overflow-y: auto; max-height: 250px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <asp:Button ID="Button1" Text="Upload" runat="server" OnClientClick=" return ValidateAndInsertExcelData();" CssClass="btn btn-md btn-success" Style="margin-right: 50%; background-color: #089a47; text-transform: capitalize;" />
+                </div>
+            </div>
+        </div>
+    </div>
